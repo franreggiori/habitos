@@ -92,6 +92,18 @@ export default function EstadisticasPage() {
 
   const worst = [...habitStats].sort((a, b) => a.pct - b.pct)[0];
 
+  // --- Días ganados / neutros / perdidos ---
+  const completedPerDay = new Map<string, number>();
+  logs.filter((l) => l.completed).forEach((l) => {
+    completedPerDay.set(l.date, (completedPerDay.get(l.date) ?? 0) + 1);
+  });
+  let diasGanados = 0, diasNeutros = 0, diasPerdidos = 0;
+  completedPerDay.forEach((count) => {
+    if (count >= 7) diasGanados++;
+    else if (count <= 3) diasPerdidos++;
+    else diasNeutros++;
+  });
+
   // --- Weekly scores ---
   const allDates = [...new Set(logs.map((l) => l.date))].sort();
   if (allDates.length === 0) {
@@ -156,6 +168,25 @@ export default function EstadisticasPage() {
             {rangeLabels[k]}
           </button>
         ))}
+      </div>
+
+      {/* Días ganados / neutros / perdidos */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center">
+          <div className="text-2xl font-bold text-emerald-600">{diasGanados}</div>
+          <div className="text-xs text-emerald-700 font-medium mt-1">Ganados</div>
+          <div className="text-xs text-emerald-500 mt-0.5">7+ hábitos</div>
+        </div>
+        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-center">
+          <div className="text-2xl font-bold text-slate-500">{diasNeutros}</div>
+          <div className="text-xs text-slate-600 font-medium mt-1">Neutros</div>
+          <div className="text-xs text-slate-400 mt-0.5">4 a 6 hábitos</div>
+        </div>
+        <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4 text-center">
+          <div className="text-2xl font-bold text-rose-500">{diasPerdidos}</div>
+          <div className="text-xs text-rose-700 font-medium mt-1">Perdidos</div>
+          <div className="text-xs text-rose-400 mt-0.5">3 o menos</div>
+        </div>
       </div>
 
       {/* Per-habit stats */}
